@@ -41,6 +41,15 @@ package object param {
     implicit object WinodwUpdateRatio extends Stack.Param[WindowUpdateRatio] {
       val default = WindowUpdateRatio(0.99f)
     }
+
+    /**
+     * When enabled, the h2 frame encoder will attempt to buffer any streams that exceed the h2 server's
+     * declared maximum allowed concurrent streams.  This is only valid for h2 clients.
+     */
+    case class EnforceMaxConcurrentStreams(enforce: Boolean)
+    implicit object EnforceMaxConcurrentStreams extends Stack.Param[EnforceMaxConcurrentStreams] {
+      val default = EnforceMaxConcurrentStreams(false)
+    }
   }
 
   object Settings {

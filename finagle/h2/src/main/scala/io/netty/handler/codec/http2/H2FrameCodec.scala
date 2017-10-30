@@ -173,22 +173,24 @@ object H2FrameCodec {
   def client(
     settings: Http2Settings = new Http2Settings,
     windowUpdateRatio: Float = DefaultWindowUpdateRatio,
-    autoRefillConnectionWindow: Boolean = false
+    autoRefillConnectionWindow: Boolean = false,
+    encoderEnforceMaxConcurrentStreams: Boolean = false
   ): H2FrameCodec =
-    mk(false, settings, windowUpdateRatio, autoRefillConnectionWindow)
+    mk(false, settings, windowUpdateRatio, autoRefillConnectionWindow, encoderEnforceMaxConcurrentStreams)
 
   def server(
     settings: Http2Settings = new Http2Settings,
     windowUpdateRatio: Float = DefaultWindowUpdateRatio,
     autoRefillConnectionWindow: Boolean = false
   ): H2FrameCodec =
-    mk(true, settings, windowUpdateRatio, autoRefillConnectionWindow)
+    mk(true, settings, windowUpdateRatio, autoRefillConnectionWindow, false)
 
   private[this] def mk(
     isServer: Boolean,
     settings: Http2Settings,
     updateRatio: Float,
-    refillConn: Boolean
+    refillConn: Boolean,
+    encoderEnforceMaxConcurrentStreams: Boolean
   ): H2FrameCodec = {
     require(0.0 < updateRatio && updateRatio < 1.0)
 
@@ -203,7 +205,8 @@ object H2FrameCodec {
 
     val encoder = {
       val fw = new Http2OutboundFrameLogger(new DefaultHttp2FrameWriter, frameLogger)
-      new DefaultHttp2ConnectionEncoder(conn, fw)
+      val defaultEncoder = new DefaultHttp2ConnectionEncoder(conn, fw)
+      if (encoderEnforceMaxConcurrentStreams) new StreamBufferingEncoder(defaultEncoder) else defaultEncoder
     }
 
     val decoder = {

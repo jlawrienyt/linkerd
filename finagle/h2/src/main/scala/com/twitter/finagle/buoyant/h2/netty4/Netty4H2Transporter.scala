@@ -28,7 +28,8 @@ object Netty4H2Transporter {
     def framer = H2FrameCodec.client(
       settings = settings,
       windowUpdateRatio = params[param.FlowControl.WindowUpdateRatio].ratio,
-      autoRefillConnectionWindow = params[param.FlowControl.AutoRefillConnectionWindow].enabled
+      autoRefillConnectionWindow = params[param.FlowControl.AutoRefillConnectionWindow].enabled,
+      encoderEnforceMaxConcurrentStreams = params[param.FlowControl.EnforceMaxConcurrentStreams].enforce
     )
 
     val pipelineInit: ChannelPipeline => Unit =
